@@ -1,0 +1,30 @@
+{
+    "msgs":[
+    {
+        "id":"credits",
+        "translations":{
+            "en":"Facelink Version 1.0. Created by Slashscreen [slashscreen.com].",
+            "jp":"フェースリンク・バージョン1.0。作成者：Slashscreen [slashscreen.com].",
+            "de":"Facelink Version 1.0. Bei Slashscreen ergeschäft [slashscreen.com]."
+        }
+    },
+
+    {
+    "id":"push_enter",
+    "translations":{
+        "en":"Press Enter to start the program ",
+        "jp":"Enterを押してプログラムを開始する ",
+        "de":"Bitte Enter drücken das Program zu starten "
+        }
+    },
+
+    {
+        "id":"conn_vts",
+        "translations":{
+            "en":"Connecting to VTubeStudio...",
+            "jp":"VTubeStudioへの接続...",
+            "de":"Verbinden zu VTubeStudio..."
+        }
+    }
+    ]
+}
