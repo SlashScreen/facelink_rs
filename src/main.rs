@@ -46,6 +46,9 @@ fn main() {
     if input == "quit"{
         quit();
     }
-    thread::spawn(move || println!("{:?}",mocap_bind::mocap_bind(&config.ip))); //this does nothing. no errors, no printing, no nothing.
+
+    println!("spawning thread...");
+    let mcbind = thread::spawn(move || mocap_bind::mocap_bind(&config.ip)).join(); 
+    println!("{:?}",mcbind);
     //todo: implement websocket
 }

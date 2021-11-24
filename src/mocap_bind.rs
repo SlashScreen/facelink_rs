@@ -17,8 +17,9 @@ pub async fn mocap_bind(ip:&str) -> Result<u8,std::io::Error>{
     // Next up we create a TCP listener which will listen for incoming
     // connections. This TCP listener is bound to the address we determined
     // above and must be associated with an event loop.
-    let listener = TcpListener::bind(format!("{}:1892",ip.to_string())).await?; //bind local ip defined in config to port 1892
-    println!("Listening on: {}", format!("{}:1892",ip.to_string())); //gives feedback... ideally. as i said, nothing happens.
+     println!("connecting to {}:49986",ip.to_string());
+    let listener = TcpListener::bind(format!("{}:49986",ip.to_string())).await?; //bind local ip defined in config to port 49986
+    println!("Listening on: {}", format!("{}:49986",ip.to_string())); //gives feedback... ideally. as i said, nothing happens.
 
     loop {
         // Asynchronously wait for an inbound socket.
