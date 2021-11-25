@@ -1,12 +1,13 @@
 use std::fs;
 use std::io::Write;
-use std::thread;
+use std::sync::mpsc;
 
 use serde_json;
 use serde::Deserialize;
 
 mod logger;
 mod mocap_bind;
+mod vts_bind;
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
@@ -41,14 +42,18 @@ fn read_config() -> Config{
 fn main() {
     //read config
     println!("reading config...");
-    let config = read_config(); //reads json file. only thing we care about is that it has the ip address of my phone as a string
-    let input = prompt(&format!("{} ==> ", &logger::grab_translation("push_enter", &config.lang)).as_str()); //app is multilingual. basically, press enter to start app
+    let mut config = read_config(); //reads json file. only thing we care about is that it has the ip address of my phone as a string
+    logger::log_msg("push_enter", &config.lang, "yellow","black");
+    let input = prompt("==> ");//"{} ==> ", &logger::grab_translation("push_enter", &config.lang)).as_str()); //app is multilingual. basically, press enter to start app
     if input == "quit"{
         quit();
     }
 
-    println!("spawning thread...");
-    let mcbind = thread::spawn(move || mocap_bind::mocap_bind(&config.ip)).join(); 
-    println!("{:?}",mcbind);
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    println!("spawning threads...");
+    rt.block_on(vts_bind::vts_bind(&mut config.token));
+    //let _mcbind = thread::spawn(move || mocap_bind::mocap_bind(config.ip.to_string())).join().unwrap();
+
+    
     //todo: implement websocket
 }

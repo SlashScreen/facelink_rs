@@ -1,5 +1,4 @@
-use tokio::io::{AsyncWriteExt};
-use tokio::net::TcpListener;
+use std::net::UdpSocket;
 
 
 fn bufferize(s:&str,l:usize) -> Vec<u8>{ //changes any less than 1024-byte string into a uniformly-sized vector.
@@ -9,7 +8,7 @@ fn bufferize(s:&str,l:usize) -> Vec<u8>{ //changes any less than 1024-byte strin
     return st;
 }
 
-#[tokio::main]
+/* #[tokio::main]
 pub async fn mocap_bind(ip:&str) -> Result<u8,std::io::Error>{
     // Allow passing an address to listen on as the first argument of this
     // program, but otherwise we'll just set up our TCP listener on
@@ -18,7 +17,7 @@ pub async fn mocap_bind(ip:&str) -> Result<u8,std::io::Error>{
     // connections. This TCP listener is bound to the address we determined
     // above and must be associated with an event loop.
      println!("connecting to {}:49986",ip.to_string());
-    let listener = TcpListener::bind(format!("{}:49986",ip.to_string())).await?; //bind local ip defined in config to port 49986
+    let listener = TcpListener::bind("0:49986").await?; //bind local ip defined in config to port 49986
     println!("Listening on: {}", format!("{}:49986",ip.to_string())); //gives feedback... ideally. as i said, nothing happens.
 
     loop {
@@ -48,3 +47,21 @@ pub async fn mocap_bind(ip:&str) -> Result<u8,std::io::Error>{
         });
     }
 }
+ */
+
+ pub async fn mocap_bind(ip:String) -> std::io::Result<()> {
+    println!("binding socket");
+    let socket = UdpSocket::bind(format!("{}:49983",ip))?;
+    let mut buf = [0;1024];
+    println!("recieving data");
+    let (_amt, src) = socket.recv_from(&mut buf)?;
+    println!("sending first blob");
+    let buf = bufferize("iFacialMocap_sahuasouryya9218sauhuiayeta91555dy3719|sendDataVersion=v2", 1024);
+    socket.send_to(&buf, &src)?;
+
+    loop{
+        let mut buf = [0;1024];
+        let (_amt, _src) = socket.recv_from(&mut buf)?;
+        println!("{:#?}",buf);
+    }
+ }
