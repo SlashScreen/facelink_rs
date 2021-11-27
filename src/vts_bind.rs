@@ -6,18 +6,9 @@ use serde_json;
 use serde_json::Value;
 use serde::{Deserialize,Serialize};
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
-type AuthResult<T> = std::result::Result<T,str>;
-type AuthError = dyn std::error::Error;
+mod ifm_parse;
 
-
-pub struct BetweenThreadData{
-    pub typ:String,
-    pub data:HashMap<String, String>
-}
-
-
-
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Debug)]
 struct ApiRequest{
     apiName:String,
@@ -147,6 +138,11 @@ pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,token:String){
     let authres = get_auth(&mut socket,token.as_str()).await;
     if authres{
         println!("auth'd");
+        //now working
+        loop{
+            let d = rc.recv().unwrap();
+            let params = ifm_parse::parse_ifm_data(d.as_str());
+        }
 
     }else{
         println!("unauthd");

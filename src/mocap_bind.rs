@@ -1,5 +1,5 @@
-use std::net::UdpSocket;
-
+use std::io::prelude::*;
+use std::net::TcpStream;
 
 fn bufferize(s:&str,l:usize) -> Vec<u8>{ //changes any less than 1024-byte string into a uniformly-sized vector.
     let mut st:Vec<u8> = s.as_bytes().to_vec();
@@ -49,19 +49,11 @@ pub async fn mocap_bind(ip:&str) -> Result<u8,std::io::Error>{
 }
  */
 
- pub async fn mocap_bind(ip:String) -> std::io::Result<()> {
-    println!("binding socket");
-    let socket = UdpSocket::bind(format!("{}:49983",ip))?;
-    let mut buf = [0;1024];
-    println!("recieving data");
-    let (_amt, src) = socket.recv_from(&mut buf)?;
-    println!("sending first blob");
-    let buf = bufferize("iFacialMocap_sahuasouryya9218sauhuiayeta91555dy3719|sendDataVersion=v2", 1024);
-    socket.send_to(&buf, &src)?;
 
-    loop{
-        let mut buf = [0;1024];
-        let (_amt, _src) = socket.recv_from(&mut buf)?;
-        println!("{:#?}",buf);
-    }
- }
+pub fn mocap_bind() -> std::io::Result<()> {
+    let mut stream = TcpStream::connect("127.0.0.1:34254")?;
+
+    stream.write(&[1])?;
+    stream.read(&mut [0; 128])?;
+    Ok(())
+} // the stream is closed here

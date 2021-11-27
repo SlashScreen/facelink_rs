@@ -68,7 +68,7 @@ fn main() {
     ).join();
 
     loop{
-        let d = ifm_rx.recv().unwrap(); //get from ifacialmocap
+        let d = ifm_rx.recv().unwrap(); //get from ifacialmocap, block until it gets
         let _ = vtx_tx.send(d); //send data to vts
     }
     //let _ = vts.join().unwrap();
