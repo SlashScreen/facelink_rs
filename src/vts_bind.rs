@@ -11,6 +11,13 @@ type AuthResult<T> = std::result::Result<T,str>;
 type AuthError = dyn std::error::Error;
 
 
+pub struct BetweenThreadData{
+    pub typ:String,
+    pub data:HashMap<String, String>
+}
+
+
+
 #[derive(Serialize, Debug)]
 struct ApiRequest{
     apiName:String,
@@ -74,7 +81,7 @@ async fn try_get_auth_token(sock:&mut tungstenite::WebSocket<tungstenite::stream
 
 }
 
-async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&mut str) -> bool{
+async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&str) -> bool{
     let tk:&str;
     if token == ""{
         println!("trying to get key...");
@@ -124,7 +131,8 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
 
 
 
-pub async fn vts_bind(token:&mut str){
+pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,token:String){
+    //let tk = token.recv().unwrap();
     //todo: API port configure
     let (mut socket, response) = connect(Url::parse("ws://localhost:8001").unwrap()).expect("Can't connect"); //connect to vts localhost
     println!("Connected to the server");
@@ -136,7 +144,7 @@ pub async fn vts_bind(token:&mut str){
 
     
     ping(&mut socket).await;
-    let authres = get_auth(&mut socket,token).await;
+    let authres = get_auth(&mut socket,token.as_str()).await;
     if authres{
         println!("auth'd");
 
