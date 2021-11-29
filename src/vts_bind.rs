@@ -8,7 +8,7 @@ use serde::{Serialize};
 
 mod ifm_parse;
 
-#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
 #[derive(Serialize, Debug)]
 struct ApiRequest{
     apiName:String,
@@ -73,7 +73,7 @@ async fn try_get_auth_token(sock:&mut tungstenite::WebSocket<tungstenite::stream
 }
 
 async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&str) -> bool{
-    let tk:&str;
+    //let tk:&str;
     if token == ""{
         println!("trying to get key...");
         let res = try_get_auth_token(sock).await;

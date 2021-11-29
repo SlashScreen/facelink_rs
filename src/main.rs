@@ -60,13 +60,14 @@ fn main() {
     let (vtx_tx, vtx_rx) = mpsc::channel();
     let (ifm_tx, ifm_rx) = mpsc::channel::<String>();
 
-    let g = thread::spawn(move || 
+    let mc = thread::spawn(move || 
         mocap_bind::mocap_bind(ifm_tx,config.ip.clone().as_str().to_owned()).expect("could not bind")
     );
-    let _ = g.join().expect("err");
-    let _ = thread::spawn(move || 
+    let _ = mc.join().expect("Error with IFacialMocap Bind");
+    let vts = thread::spawn(move || 
         vts_bind::vts_bind(vtx_rx,config.token.clone().as_str().to_owned())
     );
+    let _ = vts.join().expect("Error with VTS Bind");
     
 
     thread::sleep(time::Duration::from_secs(3));
@@ -75,9 +76,9 @@ fn main() {
         let d = ifm_rx.recv().expect("error receiving"); //get from ifacialmocap, block until it gets
         let _ = vtx_tx.send(d); //send data to vts
     }
-    //let _ = vts.join().unwrap();
-    //let _mcbind = thread::spawn(move || mocap_bind::mocap_bind(config.ip.to_string())).join().unwrap();
 
-    
-    //todo: implement websocket
+    //TODO: 
+    //first time setup
+    //send parameters to VTS
+    //UX stuff (translations and guides)
 }
