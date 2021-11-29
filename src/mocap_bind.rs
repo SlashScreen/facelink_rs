@@ -1,5 +1,7 @@
 use std::io::prelude::*;
 use std::net::TcpStream;
+use std::net::UdpSocket;
+use std::str;
 
 fn bufferize(s:&str,l:usize) -> Vec<u8>{ //changes any less than 1024-byte string into a uniformly-sized vector.
     let mut st:Vec<u8> = s.as_bytes().to_vec();
@@ -50,10 +52,35 @@ pub async fn mocap_bind(ip:&str) -> Result<u8,std::io::Error>{
  */
 
 
-pub fn mocap_bind() -> std::io::Result<()> {
-    let mut stream = TcpStream::connect("127.0.0.1:34254")?;
-
-    stream.write(&[1])?;
-    stream.read(&mut [0; 128])?;
-    Ok(())
+pub fn mocap_bind(sd:std::sync::mpsc::Sender<String>,ip:String) -> std::io::Result<()> {
+    let mode = "udp";
+    if mode == "udp"{
+        let sock = UdpSocket::bind("0.0.0.0:49983")?;
+        let buf = b"iFacialMocap_sahuasouryya9218sauhuiayeta91555dy3719|sendDataVersion=v2";
+        sock.send_to(buf, format!("{}:49983",ip))?;
+        loop{
+            //let mut d:&[u8] = &mut [];
+                let mut d = [0;1024];
+                let _ = sock.recv_from(&mut d)?;
+                let _ = sd.send(String::from(str::from_utf8(&d).unwrap()));
+            }
+        //Ok(())
+    }else{
+        println!("{:#?}",sd);
+        println!("{}",format!("connecting to {}:49986",ip));
+        let mut stream = TcpStream::connect(format!("{}:49983",ip))?;
+        println!("{}",format!("connected to {}:49986",ip));
+        stream.write(b"iFacialMocap_UDPTCP_sahuasouryya9218sauhuiayeta91555dy3719|sendDataVersion=v2")?;
+        println!("sent");
+        loop{
+        //let mut d:&[u8] = &mut [];
+            let mut d = String::from("");
+            let _ = stream.read_to_string(&mut d)?;
+            let _ = sd.send(d);
+        
+        }
+    }
+    
+    
+    
 } // the stream is closed here

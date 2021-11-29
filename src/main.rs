@@ -1,10 +1,7 @@
 use std::fs;
 use std::io::Write;
 use std::sync::mpsc;
-use std::sync::{Arc, Mutex};
-use std::thread;
-use std::sync::mpsc::channel;
-use std::collections::HashMap;
+use std::{thread, time};
 
 use serde_json;
 use serde::Deserialize;
@@ -59,16 +56,23 @@ fn main() {
     //let tx: mpsc::Sender<BetweenThreadData>;
     //let rx: mpsc::Receiver<BetweenThreadData>;
 
-    let dt = Arc::new(Mutex::new(String::from("")));
+    //let dt = Arc::new(Mutex::new(String::from("")));
     let (vtx_tx, vtx_rx) = mpsc::channel();
     let (ifm_tx, ifm_rx) = mpsc::channel::<String>();
 
+    let g = thread::spawn(move || 
+        mocap_bind::mocap_bind(ifm_tx,config.ip.clone().as_str().to_owned()).expect("could not bind")
+    );
+    let _ = g.join().expect("err");
     let _ = thread::spawn(move || 
         vts_bind::vts_bind(vtx_rx,config.token.clone().as_str().to_owned())
-    ).join();
+    );
+    
+
+    thread::sleep(time::Duration::from_secs(3));
 
     loop{
-        let d = ifm_rx.recv().unwrap(); //get from ifacialmocap, block until it gets
+        let d = ifm_rx.recv().expect("error receiving"); //get from ifacialmocap, block until it gets
         let _ = vtx_tx.send(d); //send data to vts
     }
     //let _ = vts.join().unwrap();

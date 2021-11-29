@@ -4,7 +4,7 @@ use tungstenite::{connect, Message};
 use url::Url;
 use serde_json;
 use serde_json::Value;
-use serde::{Deserialize,Serialize};
+use serde::{Serialize};
 
 mod ifm_parse;
 
@@ -76,7 +76,7 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
     let tk:&str;
     if token == ""{
         println!("trying to get key...");
-        let mut res = try_get_auth_token(sock).await;
+        let res = try_get_auth_token(sock).await;
         if res == "nil"{
             return false;
         }else{
@@ -123,6 +123,7 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
 
 
 pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,token:String){
+    println!("{:#?}",rc);
     //let tk = token.recv().unwrap();
     //todo: API port configure
     let (mut socket, response) = connect(Url::parse("ws://localhost:8001").unwrap()).expect("Can't connect"); //connect to vts localhost
@@ -142,6 +143,7 @@ pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,token:String){
         loop{
             let d = rc.recv().unwrap();
             let params = ifm_parse::parse_ifm_data(d.as_str());
+            println!("{:#?}",params);
         }
 
     }else{
