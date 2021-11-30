@@ -1,12 +1,19 @@
-use std::collections::HashMap;
+//handles all interaction with vtube studio
 
+//include standard
+use std::collections::HashMap;
+use std::fs;
+//include vendor
 use tungstenite::{connect, Message};
 use url::Url;
 use serde_json;
 use serde_json::Value;
-use serde::{Serialize};
-
+use serde::{Deserialize,Serialize};
+//include modules
 mod ifm_parse;
+
+//structs for requests
+//lots of repeated code here, could probably do to make a single ApiRequest and figure out how to let data be anything. serde is strictly typed though, i think, so that may be harder than in Go where i can just use interface{}
 
 #[allow(non_snake_case)]
 #[derive(Serialize, Debug)]
@@ -18,10 +25,61 @@ struct ApiRequest{
     data:HashMap<String,String>
 }
 
+#[allow(non_snake_case)]
+#[derive(Serialize, Debug)]
+struct ApiInjectRequest{
+    apiName:String,
+    apiVersion:String,
+    requestID:String,
+    messageType:String,
+    data:HashMap<String,Vec<ifm_parse::Param>>
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Debug)]
+struct ApiCreationRequest{
+    apiName:String,
+    apiVersion:String,
+    requestID:String,
+    messageType:String,
+    data:ApiParam
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Debug)]
+struct ApiParam{
+    parameterName:String,
+    explanation:String,
+    min:i8,
+    max:i8,
+    defaultValue:i8
+}
+
+//parameter from the json file
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+struct Parameter{
+    GUID:String,
+    Type:String,
+    ID:String,
+    Name:String,
+    Group:String,
+    #[serde(rename(deserialize = "min_val"))]
+    min_val:i8,
+    #[serde(rename(deserialize = "def_val"))]
+    def_val:i8,
+    #[serde(rename(deserialize = "min_val"))]
+    max_val:i8,
+    Repetition:bool,
+    Description:String
+}
+
 
 
 async fn ping(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>){
-    let req = ApiRequest{
+    //keeps connection alive 
+    let req = ApiRequest{ //create ping request
         apiName:String::from("VTubeStudioPublicAPI"),
         apiVersion:String::from("1.0"),
         requestID:String::from("FaceLinkRS"),
@@ -29,10 +87,10 @@ async fn ping(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStre
         data:HashMap::new()
     };
 
-    sock.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())).unwrap();
-    loop {
+    sock.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())).unwrap(); //send ping
+
+    loop { //wait for response
         let msg = sock.read_message().expect("Error reading message");
-        println!("Received: {}", msg);
         if msg.into_text().unwrap() != ""{
             return;
         }
@@ -41,6 +99,7 @@ async fn ping(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStre
 }
 
 async fn try_get_auth_token(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>) -> String{
+    //attempts to get a new token from vts
     let req = ApiRequest{ //API request for trying to authenticate app
         apiName:String::from("VTubeStudioPublicAPI"),
         apiVersion:String::from("1.0"),
@@ -72,17 +131,59 @@ async fn try_get_auth_token(sock:&mut tungstenite::WebSocket<tungstenite::stream
 
 }
 
+async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>){
+    //read parameters file and create parameters within vts
+    let file:String = fs::read_to_string(".\\src\\config.json").expect("Config not found!"); //open and read config.json
+    let pms:Vec<Parameter> = serde_json::from_str(&file).expect("Config file malformed!"); //parse file
+
+    for pm in pms{
+        let req = ApiCreationRequest{ //create parameter creation request
+            apiName:String::from("VTubeStudioPublicAPI"),
+            apiVersion:String::from("1.0"),
+            requestID:String::from("FaceLinkRS"),
+            messageType:String::from("ParameterCreationRequest"),
+            data:ApiParam{
+                parameterName:String::from(pm.Name),
+                explanation:String::from(pm.Description),
+                min:pm.min_val,
+                max:pm.max_val,
+                defaultValue:pm.def_val
+            }
+        };
+
+        //send request
+        sock.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())).unwrap();
+
+        //wait for response as not to overload VTS
+        loop{
+            let msg = sock.read_message().expect("Error reading message"); 
+            if msg.to_text().unwrap() != ""{
+                break;
+            }
+        }
+    }
+}
+
+async fn process_token_response(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>, res:String) -> bool{
+    //some reused code to check if we've been rejected
+
+    if res == "nil"{
+        return false; //user rejected us :(
+    }else{
+        first_time_setup(sock).await; //perform first time setup
+        return true;
+        //save token
+    }
+}
+
 async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&str) -> bool{
+    //attempts to find authorization state from vtube studio
+
     //let tk:&str;
-    if token == ""{
+    if token == ""{ //if we've never used the app before
         println!("trying to get key...");
         let res = try_get_auth_token(sock).await;
-        if res == "nil"{
-            return false;
-        }else{
-            return true;
-            //tk = res.as_mut_str();
-        }
+        return process_token_response(sock, res).await;
     }else{
         let req = ApiRequest{ //API request for trying to authenticate app
             apiName:String::from("VTubeStudioPublicAPI"),
@@ -99,20 +200,21 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
         sock.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())).unwrap(); //send request
 
         let data:Value;
-        loop { //wait until response
+        loop { //wait for response
             let msg = sock.read_message().expect("Error reading message"); 
             if msg.to_text().unwrap() != ""{
-                println!("Received: {}", msg);
+                //println!("Received: {}", msg);
                 data = serde_json::from_str(msg.to_text().unwrap()).unwrap();
                 break;
             }
         }
 
-        println!("{}",data["data"]["authenticated"].as_bool().unwrap());
-        if data["data"]["authenticated"].as_bool().unwrap() {
+        println!("{}",data["data"]["authenticated"].as_bool().unwrap()); //print authentication
+        if data["data"]["authenticated"].as_bool().unwrap() { //if we are authenticated
             return true;
-        }else{
-            return false;
+        }else{ //if not
+            let res = try_get_auth_token(sock).await; //ask vtube studio for auth token
+            return process_token_response(sock, res).await;
         }
         
 
@@ -123,9 +225,8 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
 
 
 pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,token:String){
-    println!("{:#?}",rc);
-    //let tk = token.recv().unwrap();
-    //todo: API port configure
+    //binds to vts and forwards input from iFacialMocap
+    
     let (mut socket, response) = connect(Url::parse("ws://localhost:8001").unwrap()).expect("Can't connect"); //connect to vts localhost
     println!("Connected to the server");
     println!("Response HTTP code: {}", response.status());
@@ -135,15 +236,25 @@ pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,token:String){
     }
 
     
-    ping(&mut socket).await;
-    let authres = get_auth(&mut socket,token.as_str()).await;
+    ping(&mut socket).await; //ping socket
+    let authres = get_auth(&mut socket,token.as_str()).await; //check if authenticated
     if authres{
         println!("auth'd");
         //now working
         loop{
-            let d = rc.recv().unwrap();
-            let params = ifm_parse::parse_ifm_data(d.as_str());
-            println!("{:#?}",params);
+            let d = rc.recv().unwrap(); //get data from channel (from iFacialMocap)
+            let params = ifm_parse::parse_ifm_data(d.as_str()); //parse blob
+            let req = ApiInjectRequest{ //create injection request
+                apiName:String::from("VTubeStudioPublicAPI"),
+                apiVersion:String::from("1.0"),
+                requestID:String::from("FaceLinkRS"),
+                messageType:String::from("InjectParameterDataRequest"),
+                data:HashMap::from([
+                    (String::from("parameterValues"),params) //parameters
+                ])
+            };
+
+            socket.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())).unwrap(); //send injection request
         }
 
     }else{

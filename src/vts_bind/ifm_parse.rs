@@ -1,5 +1,8 @@
+//parses iFacialMocap blob
+
 use serde::{Serialize};
 
+//formatted parameter
 #[derive(Serialize, Debug)]
 pub struct Param{
     id:String,
@@ -8,9 +11,13 @@ pub struct Param{
 
 
 pub fn parse_ifm_data(data:&str) -> Vec<Param>{
-    let mut out:Vec<Param> = vec!();
-    let blendshapes:Vec<&str> = data.split("|").collect();
-    let position_dat_list = [
+    //parse IFM blob and return formatted parameters
+
+    let mut out:Vec<Param> = vec!(); //create output vectors 
+
+    let blendshapes:Vec<&str> = data.split("|").collect(); //split into each parameter by |
+
+    let position_dat_list = [ //just a table for easier euler string concatation
         "EulerRotationX",
         "EulerRotationY",
         "EulerRotationZ",
@@ -18,8 +25,10 @@ pub fn parse_ifm_data(data:&str) -> Vec<Param>{
         "PositionY",
         "PositionZ",
     ];
+
     for shape in blendshapes {
-        if !shape.contains("#") && !shape.contains("&"){
+        //for each split blendshape blob
+        if !shape.contains("#") && !shape.contains("&"){ //make sure it contains the separators we are looking for
             continue;
         }
 
@@ -47,5 +56,5 @@ pub fn parse_ifm_data(data:&str) -> Vec<Param>{
             }
         }
     }
-    return out;
+    return out; //return final output
 }

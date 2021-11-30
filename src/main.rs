@@ -1,12 +1,16 @@
+//main.rs
+//main app
+
+//include std
 use std::fs;
 use std::io::Write;
 use std::sync::mpsc;
-use std::{thread, time};
+use std::{thread};
+//include vendor
 use tokio::runtime::Runtime;
-
 use serde_json;
 use serde::Deserialize;
-
+//include modules
 mod logger;
 mod mocap_bind;
 mod vts_bind;
@@ -34,29 +38,24 @@ fn quit(){
 }
 
 fn read_config() -> Config{
-    /*for e in fs::read_dir(".\\src").unwrap(){
-        println!("{:?}",e.unwrap().path())
-    }*/
     let file:String = fs::read_to_string(".\\src\\config.json").expect("Config not found!"); //open and read config.json
     let cnf:Config = serde_json::from_str(&file).expect("Config file malformed!"); //parse file
     return cnf;
 }
+
 fn main() {
     //read config
     println!("reading config...");
     let config = read_config(); //reads json file. only thing we care about is that it has the ip address of my phone as a string
+
     logger::log_msg("push_enter", &config.lang, "yellow","black");
-    let input = prompt("==> ");//"{} ==> ", &logger::grab_translation("push_enter", &config.lang)).as_str()); //app is multilingual. basically, press enter to start app
+    let input = prompt("==> "); //app is multilingual. basically, press enter to start app
+
     if input == "quit"{
         quit();
     }
 
-    //let rt = tokio::runtime::Runtime::new().unwrap();
     println!("spawning threads...");
-    //let tx: mpsc::Sender<BetweenThreadData>;
-    //let rx: mpsc::Receiver<BetweenThreadData>;
-
-    //let dt = Arc::new(Mutex::new(String::from("")));
     let runtime = Runtime::new().unwrap();
     let (vtx_tx, vtx_rx) = mpsc::channel();
     let (ifm_tx, ifm_rx) = mpsc::channel::<String>();
@@ -70,21 +69,10 @@ fn main() {
     runtime.spawn(async {
         vts_bind::vts_bind(vtx_rx,config.token).await
     });
-    /* thread::spawn(move || 
-        vts_bind::vts_bind(vtx_rx,config.token.clone().as_str().to_owned())
-    ); */
-    //let _ = vts.join().expect("Error with VTS Bind");
-    
 
-    //thread::sleep(time::Duration::from_secs(3));
 
     loop{
         let d = ifm_rx.recv().expect("error receiving"); //get from ifacialmocap, block until it gets
         let _ = vtx_tx.send(d); //send data to vts
     }
-
-    //TODO: 
-    //first time setup
-    //send parameters to VTS
-    //UX stuff (translations and guides)
 }
