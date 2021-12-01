@@ -39,31 +39,31 @@ fn main() {
     //read config
     println!("reading config...");
     let config = Arc::new(Mutex::new(read_config())) ; //reads json file. only thing we care about is that it has the ip address of my phone as a string
+    let cnf_lang = config.lock().unwrap().lang.clone();
 
-
-    fllog::log_msg("push_enter", &config.lock().unwrap().lang, "yellow","black");
+    fllog::log_msg("push_enter", cnf_lang.as_str(), "yellow","black");
     let input = prompt("==> "); //app is multilingual. basically, press enter to start app
 
     if input == "quit"{
         quit();
     }
 
-    println!("spawning threads...");
     let runtime = Runtime::new().unwrap();
     let (vtx_tx, vtx_rx) = mpsc::channel();
     let (ifm_tx, ifm_rx) = mpsc::channel::<String>();
 
-    println!("Spawning Mocap thread...");
+    fllog::log_msg("spawn_mocap", cnf_lang.as_str(), "white","black");
     let m_cnfg = config.clone();
     thread::spawn(move || {
         let ip = m_cnfg.lock().unwrap().ip.clone();
         mocap_bind::mocap_bind(ifm_tx,ip).expect("could not bind");
     });
     //let _ = mc.join().expect("Error with IFacialMocap Bind");
-    println!("Spawning VTS thread...");
+    fllog::log_msg("spawn_vts", cnf_lang.as_str(), "white","black");
     let c_cnfg = fsconfig::SharedConfig{shared:config};
     runtime.spawn(async move {
-        vts_bind::vts_bind(vtx_rx,&c_cnfg).await
+        let lang = c_cnfg.shared.lock().unwrap().lang.clone();
+        vts_bind::vts_bind(vtx_rx,&c_cnfg,lang.as_str()).await
     });
 
 

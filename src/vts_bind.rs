@@ -93,7 +93,6 @@ async fn ping(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStre
 
     loop { //wait for response
         let msg = sock.read_message().expect("Error reading message");
-        println!("ping {}",msg);
         if msg.into_text().unwrap() != ""{
             return;
         }
@@ -134,9 +133,9 @@ async fn try_get_auth_token(sock:&mut tungstenite::WebSocket<tungstenite::stream
 
 }
 
-async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>){
+async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,lang:&str){
     //read parameters file and create parameters within vts
-    println!("performing first time setup");
+    fllog::log_msg("first_time", lang, "yellow","black");
     let file:String = fs::read_to_string(".\\src\\params.json").expect("Config not found!"); //open and read config.json
     let pms:Vec<Parameter> = serde_json::from_str(&file).expect("Config file malformed!"); //parse file
     ping(sock).await;
@@ -170,16 +169,15 @@ async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::
     }
 }
 
-async fn process_token_response(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>, res:String,cnfg:&fsconfig::SharedConfig) -> bool{
+async fn process_token_response(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>, res:String,cnfg:&fsconfig::SharedConfig,lang:&str) -> bool{
     //some reused code to check if we've been rejected
-    println!("{}",res);
     if res.as_str() == "nil"{ //if nil, we've been rejected
         return false; //user rejected us :(
     }else{ //if we got a key,
         let sres = res.replace("\"", "");
         cnfg.set_token(sres.clone()); //set our token to that key
         if authenticate(sock, sres.as_str()).await{ //try to authenticate the session
-            first_time_setup(sock).await; //do first time setup
+            first_time_setup(sock,lang).await; //do first time setup
         return true; //return true
         }else{//if rejected, for some reason
             return false;
@@ -212,7 +210,6 @@ async fn authenticate(sock:&mut tungstenite::WebSocket<tungstenite::stream::Mayb
         }
     }
 
-    println!("{}",data["data"]["authenticated"].as_bool().unwrap()); //print authentication
     if data["data"]["authenticated"].as_bool().unwrap() { //if we are authenticated
         return true;
     }else{ //if not
@@ -220,43 +217,34 @@ async fn authenticate(sock:&mut tungstenite::WebSocket<tungstenite::stream::Mayb
     }
 }
 
-async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&str,cnfg:&fsconfig::SharedConfig) -> bool{
+async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&str,cnfg:&fsconfig::SharedConfig,lang:&str) -> bool{
     //attempts to find authorization state from vtube studio
-    println!("get_auth begin, with token {}",token);
     //let tk:&str;
     if token == ""{ //if we've never used the app before
-        println!("trying to get key...");
         let res = try_get_auth_token(sock).await;
-        return process_token_response(sock, res,cnfg).await;
+        return process_token_response(sock, res,cnfg,lang).await;
     }else{ //if we have
         if authenticate(sock,token).await{ //check if token registered
             return true //if yes, then we are good to go
         }else{//if not,
             let res = try_get_auth_token(sock).await; //try to get a new key
-            return process_token_response(sock, res,cnfg).await; //and if we are refused, return false. if we are accepted, return true
+            return process_token_response(sock, res,cnfg,lang).await; //and if we are refused, return false. if we are accepted, return true
         }
     } 
 }
 
 
 
-pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::SharedConfig) {
+pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::SharedConfig,lang:&str) {
     //binds to vts and forwards input from iFacialMocap
     
-    let (mut socket, response) = connect(Url::parse("ws://localhost:8001").unwrap()).expect("Can't connect"); //connect to vts localhost
-    println!("Connected to the server");
-    println!("Response HTTP code: {}", response.status());
-    println!("Response contains the following headers:");
-    for (ref header, _value) in response.headers() {
-        println!("* {}", header);
-    }
-
+    let (mut socket, _response) = connect(Url::parse("ws://localhost:8001").unwrap()).expect("Can't connect"); //connect to vts localhost
+    fllog::log_msg("vts_connect_success", lang, "white","black");
     
     ping(&mut socket).await; //ping socket
     
-    println!("getting authorization...");
-    println!("{}",&cnfg.get_token());
-    let authres = get_auth(&mut socket, &cnfg.get_token(),cnfg).await;
+    fllog::log_msg("getting_auth", lang, "yellow","black");
+    let authres = get_auth(&mut socket, &cnfg.get_token(),cnfg,lang).await;
     if authres{
         println!("auth'd");
         //now working
@@ -277,7 +265,7 @@ pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::Share
         }
 
     }else{
-        println!("unauthd");
+        fllog::log_msg("user_reject", lang, "red","yellow");
     }
     
     return;

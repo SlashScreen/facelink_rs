@@ -34,9 +34,7 @@ impl SharedConfig {
         lock.write_self();
     }
     pub fn get_token(&self) -> String {
-        println!("getting token...");
         let lock = self.shared.lock().expect("error locking config"); //stops here
-        println!("cloning token...");
         return lock.token.clone();
     }
 }
