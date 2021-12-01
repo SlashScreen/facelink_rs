@@ -134,7 +134,7 @@ async fn try_get_auth_token(sock:&mut tungstenite::WebSocket<tungstenite::stream
 
 async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>){
     //read parameters file and create parameters within vts
-    let file:String = fs::read_to_string(".\\src\\config.json").expect("Config not found!"); //open and read config.json
+    let file:String = fs::read_to_string(".\\src\\params.json").expect("Config not found!"); //open and read config.json
     let pms:Vec<Parameter> = serde_json::from_str(&file).expect("Config file malformed!"); //parse file
 
     for pm in pms{
@@ -180,7 +180,7 @@ async fn process_token_response(sock:&mut tungstenite::WebSocket<tungstenite::st
 
 async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&str,cnfg:&fsconfig::SharedConfig) -> bool{
     //attempts to find authorization state from vtube studio
-
+    println!("get_auth begin, with token {}",token);
     //let tk:&str;
     if token == ""{ //if we've never used the app before
         println!("trying to get key...");
@@ -240,7 +240,8 @@ pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::Share
     
     ping(&mut socket).await; //ping socket
     
-    
+    println!("getting authorization...");
+    println!("{}",&cnfg.get_token());
     let authres = get_auth(&mut socket, &cnfg.get_token(),cnfg).await;
     if authres{
         println!("auth'd");

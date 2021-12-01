@@ -10,9 +10,9 @@ use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use serde_json;
 use fsconfig;
+use fllog;
 
 //include modules
-mod logger;
 mod mocap_bind;
 mod vts_bind;
 
@@ -41,7 +41,7 @@ fn main() {
     let config = Arc::new(Mutex::new(read_config())) ; //reads json file. only thing we care about is that it has the ip address of my phone as a string
 
 
-    logger::log_msg("push_enter", &config.lock().unwrap().lang, "yellow","black");
+    fllog::log_msg("push_enter", &config.lock().unwrap().lang, "yellow","black");
     let input = prompt("==> "); //app is multilingual. basically, press enter to start app
 
     if input == "quit"{
@@ -55,9 +55,10 @@ fn main() {
 
     println!("Spawning Mocap thread...");
     let m_cnfg = config.clone();
-    thread::spawn(move || 
-        mocap_bind::mocap_bind(ifm_tx,m_cnfg.lock().unwrap().ip.clone().as_str().to_owned()).expect("could not bind")
-    );
+    thread::spawn(move || {
+        let ip = m_cnfg.lock().unwrap().ip.clone();
+        mocap_bind::mocap_bind(ifm_tx,ip).expect("could not bind");
+    });
     //let _ = mc.join().expect("Error with IFacialMocap Bind");
     println!("Spawning VTS thread...");
     let c_cnfg = fsconfig::SharedConfig{shared:config};

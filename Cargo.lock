@@ -69,6 +69,7 @@ dependencies = [
 name = "facelink_rs"
 version = "0.1.0"
 dependencies = [
+ "fllog",
  "fsconfig",
  "futures",
  "log",
@@ -78,6 +79,15 @@ dependencies = [
  "tokio",
  "tungstenite",
  "url",
+]
+
+[[package]]
+name = "fllog"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "termcolor",
 ]
 
 [[package]]
@@ -101,6 +111,7 @@ name = "fsconfig"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "serde_json",
 ]
 
 [[package]]
