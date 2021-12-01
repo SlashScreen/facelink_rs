@@ -15,3 +15,4 @@ tungstenite = "0.16.0"
 url = "2.2.2"
 futures = { version = "0.3.*" }
 log = "0.4.*"
+fsconfig = {version = "0.1.0", path = "fsconfig"} 

@@ -9,6 +9,7 @@ use url::Url;
 use serde_json;
 use serde_json::Value;
 use serde::{Deserialize,Serialize};
+use fsconfig;
 //include modules
 mod ifm_parse;
 
@@ -50,9 +51,9 @@ struct ApiCreationRequest{
 struct ApiParam{
     parameterName:String,
     explanation:String,
-    min:i8,
-    max:i8,
-    defaultValue:i8
+    min:f32,
+    max:f32,
+    defaultValue:f32
 }
 
 //parameter from the json file
@@ -66,11 +67,11 @@ struct Parameter{
     Name:String,
     Group:String,
     #[serde(rename(deserialize = "min_val"))]
-    min_val:i8,
+    min_val:f32,
     #[serde(rename(deserialize = "def_val"))]
-    def_val:i8,
+    def_val:f32,
     #[serde(rename(deserialize = "min_val"))]
-    max_val:i8,
+    max_val:f32,
     Repetition:bool,
     Description:String
 }
@@ -164,26 +165,27 @@ async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::
     }
 }
 
-async fn process_token_response(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>, res:String) -> bool{
+async fn process_token_response(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>, res:String,cnfg:&fsconfig::SharedConfig) -> bool{
     //some reused code to check if we've been rejected
 
-    if res == "nil"{
+    if res.as_str() == "nil"{
         return false; //user rejected us :(
     }else{
+        cnfg.set_token(res);
         first_time_setup(sock).await; //perform first time setup
         return true;
         //save token
     }
 }
 
-async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&str) -> bool{
+async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&str,cnfg:&fsconfig::SharedConfig) -> bool{
     //attempts to find authorization state from vtube studio
 
     //let tk:&str;
     if token == ""{ //if we've never used the app before
         println!("trying to get key...");
         let res = try_get_auth_token(sock).await;
-        return process_token_response(sock, res).await;
+        return process_token_response(sock, res,cnfg).await;
     }else{
         let req = ApiRequest{ //API request for trying to authenticate app
             apiName:String::from("VTubeStudioPublicAPI"),
@@ -214,7 +216,7 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
             return true;
         }else{ //if not
             let res = try_get_auth_token(sock).await; //ask vtube studio for auth token
-            return process_token_response(sock, res).await;
+            return process_token_response(sock, res,cnfg).await;
         }
         
 
@@ -224,7 +226,7 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
 
 
 
-pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,token:String){
+pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::SharedConfig) {
     //binds to vts and forwards input from iFacialMocap
     
     let (mut socket, response) = connect(Url::parse("ws://localhost:8001").unwrap()).expect("Can't connect"); //connect to vts localhost
@@ -237,7 +239,9 @@ pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,token:String){
 
     
     ping(&mut socket).await; //ping socket
-    let authres = get_auth(&mut socket,token.as_str()).await; //check if authenticated
+    
+    
+    let authres = get_auth(&mut socket, &cnfg.get_token(),cnfg).await;
     if authres{
         println!("auth'd");
         //now working

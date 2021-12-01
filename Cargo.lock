@@ -69,6 +69,7 @@ dependencies = [
 name = "facelink_rs"
 version = "0.1.0"
 dependencies = [
+ "fsconfig",
  "futures",
  "log",
  "serde",
@@ -93,6 +94,13 @@ checksum = "5fc25a87fa4fd2094bffb06925852034d90a17f0d1e05197d4956d3555752191"
 dependencies = [
  "matches",
  "percent-encoding",
+]
+
+[[package]]
+name = "fsconfig"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

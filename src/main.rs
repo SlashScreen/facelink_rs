@@ -1,28 +1,20 @@
 //main.rs
 //main app
-
 //include std
 use std::fs;
 use std::io::Write;
 use std::sync::mpsc;
 use std::{thread};
+use std::sync::{Arc, Mutex};
 //include vendor
 use tokio::runtime::Runtime;
 use serde_json;
-use serde::Deserialize;
+use fsconfig;
+
 //include modules
 mod logger;
 mod mocap_bind;
 mod vts_bind;
-
-#[derive(Deserialize, Debug)]
-pub struct Config {
-    ip:String,
-    port:String,
-    lang:String,
-    token:String
-}
-
 
 fn prompt(name:&str) -> String {
     let mut line = String::new();
@@ -37,18 +29,19 @@ fn quit(){
     std::process::exit(0);
 }
 
-fn read_config() -> Config{
+fn read_config() -> fsconfig::Config{
     let file:String = fs::read_to_string(".\\src\\config.json").expect("Config not found!"); //open and read config.json
-    let cnf:Config = serde_json::from_str(&file).expect("Config file malformed!"); //parse file
+    let cnf:fsconfig::Config = serde_json::from_str(&file).expect("Config file malformed!"); //parse file
     return cnf;
 }
 
 fn main() {
     //read config
     println!("reading config...");
-    let config = read_config(); //reads json file. only thing we care about is that it has the ip address of my phone as a string
+    let config = Arc::new(Mutex::new(read_config())) ; //reads json file. only thing we care about is that it has the ip address of my phone as a string
 
-    logger::log_msg("push_enter", &config.lang, "yellow","black");
+
+    logger::log_msg("push_enter", &config.lock().unwrap().lang, "yellow","black");
     let input = prompt("==> "); //app is multilingual. basically, press enter to start app
 
     if input == "quit"{
@@ -61,13 +54,15 @@ fn main() {
     let (ifm_tx, ifm_rx) = mpsc::channel::<String>();
 
     println!("Spawning Mocap thread...");
+    let m_cnfg = config.clone();
     thread::spawn(move || 
-        mocap_bind::mocap_bind(ifm_tx,config.ip.clone().as_str().to_owned()).expect("could not bind")
+        mocap_bind::mocap_bind(ifm_tx,m_cnfg.lock().unwrap().ip.clone().as_str().to_owned()).expect("could not bind")
     );
     //let _ = mc.join().expect("Error with IFacialMocap Bind");
     println!("Spawning VTS thread...");
-    runtime.spawn(async {
-        vts_bind::vts_bind(vtx_rx,config.token).await
+    let c_cnfg = fsconfig::SharedConfig{shared:config};
+    runtime.spawn(async move {
+        vts_bind::vts_bind(vtx_rx,&c_cnfg).await
     });
 
 
