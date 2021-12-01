@@ -36,7 +36,7 @@ pub fn parse_ifm_data(data:&str) -> Vec<Param>{
             let vals:Vec<&str> = shape.split("&").collect(); //split into key and value
             let sp = vals[0].replace("_","").replace("=","").replace("Left","L").replace("Right","R"); //sanitize key
             let p = Param{ //create parameter
-                id : sp, //sanitized shape name
+                id : String::from("FLRS")+&sp, //sanitized shape name
                 value : vals[1].parse::<f32>().unwrap() //convert value to f32
             };
             out.push(p);//append
@@ -49,7 +49,7 @@ pub fn parse_ifm_data(data:&str) -> Vec<Param>{
             let angles:Vec<&str> = vals[1].split(",").collect();
             for x in 0..angles.len() { //loop through supplied angles
                 let p = Param{
-                    id : idbase.clone()+&String::from(position_dat_list[x]), //create key
+                    id : String::from("FLRS")+&idbase.clone()+&String::from(position_dat_list[x]), //create key
                     value : angles[x].parse::<f32>().unwrap() //value to f32
                 };
                 out.push(p); //append

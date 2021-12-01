@@ -3,6 +3,7 @@
 //include standard
 use std::collections::HashMap;
 use std::fs;
+use std::thread;
 //include vendor
 use tungstenite::{connect, Message};
 use url::Url;
@@ -66,11 +67,11 @@ struct Parameter{
     ID:String,
     Name:String,
     Group:String,
-    #[serde(rename(deserialize = "min_val"))]
+    #[serde(rename(deserialize = "Min Value"))]
     min_val:f32,
-    #[serde(rename(deserialize = "def_val"))]
+    #[serde(rename(deserialize = "Default Value"))]
     def_val:f32,
-    #[serde(rename(deserialize = "min_val"))]
+    #[serde(rename(deserialize = "Max Value"))]
     max_val:f32,
     Repetition:bool,
     Description:String
@@ -92,6 +93,7 @@ async fn ping(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStre
 
     loop { //wait for response
         let msg = sock.read_message().expect("Error reading message");
+        println!("ping {}",msg);
         if msg.into_text().unwrap() != ""{
             return;
         }
@@ -134,9 +136,10 @@ async fn try_get_auth_token(sock:&mut tungstenite::WebSocket<tungstenite::stream
 
 async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>){
     //read parameters file and create parameters within vts
+    println!("performing first time setup");
     let file:String = fs::read_to_string(".\\src\\params.json").expect("Config not found!"); //open and read config.json
     let pms:Vec<Parameter> = serde_json::from_str(&file).expect("Config file malformed!"); //parse file
-
+    ping(sock).await;
     for pm in pms{
         let req = ApiCreationRequest{ //create parameter creation request
             apiName:String::from("VTubeStudioPublicAPI"),
@@ -144,7 +147,7 @@ async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::
             requestID:String::from("FaceLinkRS"),
             messageType:String::from("ParameterCreationRequest"),
             data:ApiParam{
-                parameterName:String::from(pm.Name),
+                parameterName:String::from("FLRS") + &pm.Name,
                 explanation:String::from(pm.Description),
                 min:pm.min_val,
                 max:pm.max_val,
@@ -159,22 +162,61 @@ async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::
         loop{
             let msg = sock.read_message().expect("Error reading message"); 
             if msg.to_text().unwrap() != ""{
+                println!("{}",msg);
                 break;
             }
         }
+        thread::sleep(std::time::Duration::from_millis(100))
     }
 }
 
 async fn process_token_response(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>, res:String,cnfg:&fsconfig::SharedConfig) -> bool{
     //some reused code to check if we've been rejected
-
-    if res.as_str() == "nil"{
+    println!("{}",res);
+    if res.as_str() == "nil"{ //if nil, we've been rejected
         return false; //user rejected us :(
-    }else{
-        cnfg.set_token(res);
-        first_time_setup(sock).await; //perform first time setup
+    }else{ //if we got a key,
+        let sres = res.replace("\"", "");
+        cnfg.set_token(sres.clone()); //set our token to that key
+        if authenticate(sock, sres.as_str()).await{ //try to authenticate the session
+            first_time_setup(sock).await; //do first time setup
+        return true; //return true
+        }else{//if rejected, for some reason
+            return false;
+        }
+        
+    }
+}
+
+async fn authenticate(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTlsStream<std::net::TcpStream>>,token:&str) -> bool{
+    let req = ApiRequest{ //API request for trying to authenticate app
+        apiName:String::from("VTubeStudioPublicAPI"),
+        apiVersion:String::from("1.0"),
+        requestID:String::from("FaceLinkRS"),
+        messageType:String::from("AuthenticationRequest"),
+        data:HashMap::from([
+            (String::from("pluginName"),String::from("FacelinkRS")),
+            (String::from("pluginDeveloper"),String::from("Slashscreen")),
+            (String::from("authenticationToken"),String::from(token))
+        ])
+    };
+
+    sock.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())).unwrap(); //send request
+
+    let data:Value;
+    loop { //wait for response
+        let msg = sock.read_message().expect("Error reading message"); 
+        if msg.to_text().unwrap() != ""{
+            data = serde_json::from_str(msg.to_text().unwrap()).unwrap();
+            break;
+        }
+    }
+
+    println!("{}",data["data"]["authenticated"].as_bool().unwrap()); //print authentication
+    if data["data"]["authenticated"].as_bool().unwrap() { //if we are authenticated
         return true;
-        //save token
+    }else{ //if not
+        return false;
     }
 }
 
@@ -186,42 +228,14 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
         println!("trying to get key...");
         let res = try_get_auth_token(sock).await;
         return process_token_response(sock, res,cnfg).await;
-    }else{
-        let req = ApiRequest{ //API request for trying to authenticate app
-            apiName:String::from("VTubeStudioPublicAPI"),
-            apiVersion:String::from("1.0"),
-            requestID:String::from("FaceLinkRS"),
-            messageType:String::from("AuthenticationRequest"),
-            data:HashMap::from([
-                (String::from("pluginName"),String::from("FacelinkRS")),
-                (String::from("pluginDeveloper"),String::from("Slashscreen")),
-                (String::from("authenticationToken"),String::from(token))
-            ])
-        };
-
-        sock.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())).unwrap(); //send request
-
-        let data:Value;
-        loop { //wait for response
-            let msg = sock.read_message().expect("Error reading message"); 
-            if msg.to_text().unwrap() != ""{
-                //println!("Received: {}", msg);
-                data = serde_json::from_str(msg.to_text().unwrap()).unwrap();
-                break;
-            }
+    }else{ //if we have
+        if authenticate(sock,token).await{ //check if token registered
+            return true //if yes, then we are good to go
+        }else{//if not,
+            let res = try_get_auth_token(sock).await; //try to get a new key
+            return process_token_response(sock, res,cnfg).await; //and if we are refused, return false. if we are accepted, return true
         }
-
-        println!("{}",data["data"]["authenticated"].as_bool().unwrap()); //print authentication
-        if data["data"]["authenticated"].as_bool().unwrap() { //if we are authenticated
-            return true;
-        }else{ //if not
-            let res = try_get_auth_token(sock).await; //ask vtube studio for auth token
-            return process_token_response(sock, res,cnfg).await;
-        }
-        
-
-    }
-    
+    } 
 }
 
 
@@ -259,7 +273,7 @@ pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::Share
                 ])
             };
 
-            socket.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())).unwrap(); //send injection request
+            let _ = socket.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())); //send injection request
         }
 
     }else{
