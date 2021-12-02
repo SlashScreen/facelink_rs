@@ -13,11 +13,25 @@ use fsconfig;
 use fllog;
 use regex::Regex;
 
+#[macro_use]
+extern crate self_update;
+
 //include modules
 mod mocap_bind;
 mod vts_bind;
 
-//todo: update
+fn update() -> Result<(), Box<dyn ::std::error::Error>> {
+    let status = self_update::backends::github::Update::configure()
+        .repo_owner("Slashscreen")
+        .repo_name("facelink_rs")
+        .bin_name("github")
+        .show_download_progress(true)
+        .current_version(cargo_crate_version!())
+        .build()?
+        .update()?;
+    println!("Update status: `{}`!", status.version());
+    Ok(())
+}
 
 fn prompt(name:&str) -> String {
     let mut line = String::new();
@@ -39,6 +53,11 @@ fn read_config() -> fsconfig::Config{
 }
 
 fn main() {
+    //update
+    println!("Updating FacelinkRS...");
+    if let Err(e) = update() {
+        println!("[ERROR] {}", e);
+    }
     //read config
     println!("reading config...");
     let config = Arc::new(Mutex::new(read_config())) ; //reads json file. only thing we care about is that it has the ip address of my phone as a string
