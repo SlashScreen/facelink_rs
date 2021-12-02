@@ -29,16 +29,16 @@
             "id": "welcome",
             "translations": {
                 "en": "Welcome to Facelink!",
-                "jp": "Enterを押してプログラムを開始する ",
-                "de": "Bitte Enter drücken das Program zu starten "
+                "jp": "ようこそFacelinkへ!",
+                "de": "Willkommen bei Facelink!"
             }
         },
         {
             "id": "perform_fts",
             "translations": {
-                "en": "Let's do a first time setup for Facelink",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "en": "Let's do a first time setup for Facelink!",
+                "jp": "初めてのFacelinkのセットアップをしてみましょう。",
+                "de": "Machen wir eine Ersteinrichtung für Facelink!"
             }
         },
         {
@@ -69,16 +69,16 @@
             "id": "spawn_mocap",
             "translations": {
                 "en": "Spawning iFacialMocap thread...",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "jp": "iFacialMocapスレッドを生成...",
+                "de": "Spawning iFacialMocap-Thread..."
             }
         },
         {
             "id": "spawn_vts",
             "translations": {
                 "en": "Spawning Vtube Studio thread...",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "jp": "Vtube Studioのスレッドを生成します...",
+                "de": "Spawning Vtube Studio-Thread..."
             }
         },
         {
@@ -93,48 +93,48 @@
             "id": "vts_connect_success",
             "translations": {
                 "en": "Successfully connected to Vtube Studio!",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "jp": "Vtube Studioへの接続に成功しました!",
+                "de": "Erfolgreich mit Vtube Studio verbunden!"
             }
         },
         {
             "id": "user_reject",
             "translations": {
                 "en": "Whoops, you rejected us! Please restart the app.",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "jp": "おっと、拒絶されましたね。アプリを再起動してください。",
+                "de": "Ups, Sie haben uns abgelehnt! Bitte starten Sie die App neu."
             }
         },
         {
             "id": "first_time",
             "translations": {
                 "en": "Performing first time setup for Vtube Studio. Vtube Studio may freeze for a minute or so- this is normal.",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "jp": "Vtube Studioの初回セットアップを行います。Vtube Studioが1分ほどフリーズすることがありますが、これは正常です。",
+                "de": "Führen Sie die Ersteinrichtung für Vtube Studio durch. Vtube Studio kann für eine Minute oder so einfrieren - das ist normal."
             }
         },
         {
             "id": "auth_success",
             "translations": {
                 "en": "Successfully got authorization from Vtube Studio!",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "jp": "Vtube Studioからの認証に成功しました。",
+                "de": "Erfolgreiche Autorisierung von Vtube Studio erhalten!"
             }
         },
         {
             "id": "mocap_connect",
             "translations": {
                 "en": "Connecting to iFacialMocap. Please have the app open and the phone unlocked.",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "jp": "iFacialMocapに接続しています。アプリを開いて、携帯電話のロックを解除してください。",
+                "de": "Verbindung zu iFacialMocap herstellen. Bitte öffnen Sie die App und entsperren Sie das Telefon."
             }
         },
         {
             "id": "mocap_success",
             "translations": {
                 "en": "Connected to iFacialMocap! Did you feel the little haptic tap?",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "jp": "iFacialMocapに接続しました。小さな触覚タップを感じましたか？",
+                "de": "Verbunden mit iFacialMocap! Haben Sie die kleine haptische Berührung gespürt?"
             }
         },
         {
@@ -149,8 +149,8 @@
             "id": "beginwarning",
             "translations": {
                 "en": "Please have both iFacialMocap and VTube Studio open. Please also enable VTube Studio's API functionality, located in the settings. The port should be 8001- if it isn't, please set it to be so. If you cannot for whatever reasson, please refer to the user guide on how to change Facelink's port.\nNote: If iFacialMocap still will not connect, you may need to open a port in your firewall- please consult the user manual on how to do so.",
-                "jp": "VTubeStudioへの接続...",
-                "de": "Verbinden zu VTubeStudio..."
+                "jp": "iFacialMocapとVTube Studioの両方を開いてください。また、設定にあるVTube StudioのAPI機能を有効にしてください。ポートは8001のはずですが、もしそうでなければ設定してください。何らかの理由で設定できない場合は、Facelinkのポートを変更する方法について、ユーザーガイドを参照してください\n注：それでもiFacialMocapが接続できない場合は、ファイアウォールでポートを開く必要があるかもしれません-その方法についてはユーザーマニュアルを参照してください。",
+                "de": "Bitte haben Sie sowohl iFacialMocap als auch VTube Studio geöffnet. Aktivieren Sie bitte auch die API-Funktionalität von VTube Studio, die Sie in den Einstellungen finden. Der Port sollte 8001 sein - falls nicht, stellen Sie ihn bitte auf diesen ein. Sollte dies aus irgendeinem Grund nicht möglich sein, lesen Sie bitte im Benutzerhandbuch nach, wie Sie den Port von Facelink ändern können.\nHinweis: Wenn iFacialMocap immer noch keine Verbindung herstellen kann, müssen Sie möglicherweise einen Port in Ihrer Firewall öffnen - bitte lesen Sie im Benutzerhandbuch nach, wie das geht."
             }
         }
 
