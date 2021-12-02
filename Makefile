@@ -1,8 +1,7 @@
 release:
-	if not exist release mkdir release
+	if not exist releases\release mkdir releases\release
 	cargo build --release
-	wsl ls 
-	$(shell ls)
-	$(shell cp -v target/release/facelink_rs.exe release)
-	$(shell cp -v releasepackage/* release)
-	$(shell cp -v src/messages.json release)
+	wsl ls target/release
+	wsl cp -v target/release/facelink_rs.exe releases/release
+	wsl cp -v -r releasepackage/* releases/release
+	wsl cp -v src/messages.json releases/release
