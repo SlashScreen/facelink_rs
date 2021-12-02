@@ -17,6 +17,8 @@ use regex::Regex;
 mod mocap_bind;
 mod vts_bind;
 
+//todo: update
+
 fn prompt(name:&str) -> String {
     let mut line = String::new();
     print!("{}", name);
