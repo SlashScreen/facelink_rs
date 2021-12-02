@@ -16,4 +16,5 @@ url = "2.2.2"
 futures = { version = "0.3.*" }
 log = "0.4.*"
 fsconfig = {version = "0.1.0", path = "fsconfig"} 
-fllog = {version = "0.1.0", path = "fllog"} 
+fllog = {version = "0.1.0", path = "fllog"}
+regex = "1.5.4"

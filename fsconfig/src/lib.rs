@@ -17,6 +17,10 @@ impl Config{
         self.lang = lang;
         self.write_self();
     }
+    pub fn set_ip(&mut self, ip:String){
+        self.ip = ip;
+        self.write_self();
+    }
     pub fn write_self(&self){
         fs::write(".\\src\\config.json",serde_json::to_string_pretty(&self).unwrap()).expect("Error writing to config file");
     }
@@ -32,6 +36,14 @@ impl SharedConfig {
         let mut lock = self.shared.lock().unwrap();
         lock.token = tk;
         lock.write_self();
+    }
+    pub fn set_lang(&self, l:String) {
+        let mut lock = self.shared.lock().unwrap();
+        lock.set_lang(l);
+    }
+    pub fn set_ip(&self, ip:String) {
+        let mut lock = self.shared.lock().unwrap();
+        lock.set_ip(ip);
     }
     pub fn get_token(&self) -> String {
         let lock = self.shared.lock().expect("error locking config"); //stops here

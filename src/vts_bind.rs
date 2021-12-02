@@ -246,8 +246,7 @@ pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::Share
     fllog::log_msg("getting_auth", lang, "yellow","black");
     let authres = get_auth(&mut socket, &cnfg.get_token(),cnfg,lang).await;
     if authres{
-        println!("auth'd");
-        //now working
+        fllog::log_msg("auth_success", lang, "yellow","black");
         loop{
             let d = rc.recv().unwrap(); //get data from channel (from iFacialMocap)
             let params = ifm_parse::parse_ifm_data(d.as_str()); //parse blob
