@@ -238,7 +238,7 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
 pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::SharedConfig,lang:&str) {
     //binds to vts and forwards input from iFacialMocap
     
-    let (mut socket, _response) = connect(Url::parse(format!("ws://localhost:{}",&cnfg.get_port())).unwrap()).expect("Can't connect"); //connect to vts localhost
+    let (mut socket, _response) = connect(Url::parse(format!("ws://localhost:{}",&cnfg.get_port().as_str())).unwrap()).expect("Can't connect"); //connect to vts localhost
     fllog::log_msg("vts_connect_success", lang, "white","black");
     
     ping(&mut socket).await; //ping socket
