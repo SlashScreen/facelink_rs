@@ -1,0 +1,158 @@
+{
+    "msgs": [{
+            "id": "credits",
+            "translations": {
+                "en": "Facelink Version 1.0. Created by Slashscreen [slashscreen.com].",
+                "jp": "フェースリンク・バージョン1.0。作成者：Slashscreen [slashscreen.com].翻訳はDeepL。",
+                "de": "Facelink Version 1.0. Bei Slashscreen ergeschäft [slashscreen.com]. Übersetzungen sind hauptsächlich von DeepL, weil mein Deutsch ein bisschen verrostet ist."
+            }
+        },
+
+        {
+            "id": "push_enter",
+            "translations": {
+                "en": "Press Enter to start the program ",
+                "jp": "Enterを押してプログラムを開始する ",
+                "de": "Bitte Enter drücken das Program zu starten "
+            }
+        },
+
+        {
+            "id": "conn_vts",
+            "translations": {
+                "en": "Connecting to VTubeStudio...",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "welcome",
+            "translations": {
+                "en": "Welcome to Facelink!",
+                "jp": "Enterを押してプログラムを開始する ",
+                "de": "Bitte Enter drücken das Program zu starten "
+            }
+        },
+        {
+            "id": "perform_fts",
+            "translations": {
+                "en": "Let's do a first time setup for Facelink",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "fts_ipinstructions",
+            "translations": {
+                "en": "We will need the local IP address of your phone. Don't worry, this information is not dangerous- it's only your IP address within your own network.\nWe will need to set you phone's IP to be static. Otherwise, every time you leave your house and come back, you will need to change the IP address within Facelink.\n(By the way, if you ever need to change it, refer to the user guide.)\nHere's how to set your static IP:\nStep 1: Go to your Settings app in your iPhone, and go to Wifi.\nStep 2: Tap the network you are connected to.\nStep 3: Make a note of your 'Subnet Mask' and 'Router IP'./nStep 4: Set 'Configure IP' to 'Manual'. Set your IP address to match your router's IP address *except for the last number*, and then choose a random number between 2 and 254 for the last number. Make sure it's different from your router.\nFor example, my router IP is 10.0.0.1, and I set my phone to 10.0.0.111.\nSet your subnet mask and router IP to what it was before.\nStep 5: You're done! If you have any questions, be sure to talk to me on Twitter (@Slashscreen).",
+                "jp": "お使いの携帯電話のローカルIPアドレスが必要です。この情報は危険なものではありません。あなたのネットワーク内のIPアドレスに過ぎません。あなたの携帯電話のIPを固定にする必要があります。そうしないと、外出して戻ってくるたびに、Facelink内でIPアドレスを変更する必要があります\n。(固定IPの設定方法は以下のとおりです。)\n  ステップ1： iPhoneの「設定」アプリで「Wifi」を開きます。\nステップ2： 接続しているネットワークをタップします。\nステップ3： 「サブネットマスク」と「ルーターIP」をメモします。\nStep 4: 「Configure IP」を「Manual」に設定します。ルーターのIPアドレスと一致するようにIPアドレスを設定し、最後の数字を除いて*、2～254の間のランダムな数字を選択します。最後の数字は2～254の間でランダムに選んでください。この数字がルーターと異なることを確認してください。\n例えば、私のルーターのIPは10.0.0.1ですが、私の電話は10.0.0.111に設定しています。サブネットマスクとルーターのIPを元通りに設定します。\nステップ5: これで完了です。ご不明な点がありましたら、Twitter（@Slashscreen）までお問い合わせください。",
+                "de": "Wir benötigen die lokale IP-Adresse Ihres Telefons. Keine Sorge, diese Information ist nicht gefährlich - es handelt sich nur um Ihre IP-Adresse innerhalb Ihres eigenen Netzes. Wir müssen die IP-Adresse Ihres Telefons statisch einstellen. Andernfalls müssen Sie jedes Mal, wenn Sie Ihr Haus verlassen und zurückkommen, die IP-Adresse in Facelink ändern. \n(Übrigens, wenn du sie jemals ändern musst, schaue in der Bedienungsanleitung nach.) \nSo stellst du deine statische IP ein: Schritt 1: Gehe zu den Einstellungen deines iPhones und gehe zu Wifi. \nSchritt 2: Tippen Sie auf das Netzwerk, mit dem Sie verbunden sind.\nSchritt 3: Notieren Sie sich Ihre 'Subnetzmaske' und 'Router-IP'.\nSchritt 4: Setzen Sie 'IP konfigurieren' auf 'Manuell'. Stellen Sie Ihre IP-Adresse so ein, dass sie mit der IP-Adresse Ihres Routers übereinstimmt *mit Ausnahme der letzten Zahl*, und wählen Sie dann eine zufällige Zahl zwischen 2 und 254 für die letzte Zahl. Achten Sie darauf, dass sie sich von der Ihres Routers unterscheidet. Mein Router hat zum Beispiel die IP-Adresse 10.0.0.1, und ich habe mein Telefon auf 10.0.0.111 eingestellt. Stellen Sie die Subnetzmaske und die Router-IP wieder auf den vorherigen Wert ein. \nSchritt 5: Sie sind fertig! Wenn Sie Fragen haben, wenden Sie sich bitte an mich auf Twitter (@Slashscreen)."
+            }
+        },
+        {
+            "id": "fts_get_ip",
+            "translations": {
+                "en": "Now that we've done that, enter your phone's IP address:",
+                "jp": "これで、携帯電話のIPアドレスを入力することができました。",
+                "de": "Geben Sie nun die IP-Adresse Ihres Telefons ein:"
+            }
+        },
+        {
+            "id": "ip_err",
+            "translations": {
+                "en": "Whoops! Your IP address should be in the format X.Y.Z.A.",
+                "jp": "おやおや。あなたのIPアドレスは、X.Y.Z.Aの形式でなければなりません。",
+                "de": "Ach! Ihre IP-Adresse sollte das Format X.Y.Z.A haben."
+            }
+        },
+        {
+            "id": "spawn_mocap",
+            "translations": {
+                "en": "Spawning iFacialMocap thread...",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "spawn_vts",
+            "translations": {
+                "en": "Spawning Vtube Studio thread...",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "getting_auth",
+            "translations": {
+                "en": "Getting plugin authorization from Vtube Studio. Please allow access to Facelink within Vtube Studio.",
+                "jp": "Vtube Studioからプラグインの認証を受ける。Vtube Studio内でFacelinkへのアクセスを許可してください。",
+                "de": "Plugin-Autorisierung von Vtube Studio erhalten. Bitte erlauben Sie den Zugriff auf Facelink in Vtube Studio."
+            }
+        },
+        {
+            "id": "vts_connect_success",
+            "translations": {
+                "en": "Successfully connected to Vtube Studio!",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "user_reject",
+            "translations": {
+                "en": "Whoops, you rejected us! Please restart the app.",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "first_time",
+            "translations": {
+                "en": "Performing first time setup for Vtube Studio. Vtube Studio may freeze for a minute or so- this is normal.",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "auth_success",
+            "translations": {
+                "en": "Successfully got authorization from Vtube Studio!",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "mocap_connect",
+            "translations": {
+                "en": "Connecting to iFacialMocap. Please have the app open and the phone unlocked.",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "mocap_success",
+            "translations": {
+                "en": "Connected to iFacialMocap! Did you feel the little haptic tap?",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        },
+        {
+            "id": "title",
+            "translations": {
+                "en": " ███████████                             ████   ███             █████      ███████████    █████████ \n░░███░░░░░░█                            ░░███  ░░░             ░░███      ░░███░░░░░███  ███░░░░░███\n ░███   █ ░   ██████    ██████   ██████  ░███  ████  ████████   ░███ █████ ░███    ░███ ░███    ░░░ \n ░███████    ░░░░░███  ███░░███ ███░░███ ░███ ░░███ ░░███░░███  ░███░░███  ░██████████  ░░█████████ \n ░███░░░█     ███████ ░███ ░░░ ░███████  ░███  ░███  ░███ ░███  ░██████░   ░███░░░░░███  ░░░░░░░░███\n ░███  ░     ███░░███ ░███  ███░███░░░   ░███  ░███  ░███ ░███  ░███░░███  ░███    ░███  ███    ░███\n █████      ░░████████░░██████ ░░██████  █████ █████ ████ █████ ████ █████ █████   █████░░█████████ \n░░░░░        ░░░░░░░░  ░░░░░░   ░░░░░░  ░░░░░ ░░░░░ ░░░░ ░░░░░ ░░░░ ░░░░░ ░░░░░   ░░░░░  ░░░░░░░░░  \n                                                                                                    ",
+                "jp": " ███████████                             ████   ███             █████      ███████████    █████████ \n░░███░░░░░░█                            ░░███  ░░░             ░░███      ░░███░░░░░███  ███░░░░░███\n ░███   █ ░   ██████    ██████   ██████  ░███  ████  ████████   ░███ █████ ░███    ░███ ░███    ░░░ \n ░███████    ░░░░░███  ███░░███ ███░░███ ░███ ░░███ ░░███░░███  ░███░░███  ░██████████  ░░█████████ \n ░███░░░█     ███████ ░███ ░░░ ░███████  ░███  ░███  ░███ ░███  ░██████░   ░███░░░░░███  ░░░░░░░░███\n ░███  ░     ███░░███ ░███  ███░███░░░   ░███  ░███  ░███ ░███  ░███░░███  ░███    ░███  ███    ░███\n █████      ░░████████░░██████ ░░██████  █████ █████ ████ █████ ████ █████ █████   █████░░█████████ \n░░░░░        ░░░░░░░░  ░░░░░░   ░░░░░░  ░░░░░ ░░░░░ ░░░░ ░░░░░ ░░░░ ░░░░░ ░░░░░   ░░░░░  ░░░░░░░░░  \n                                                                                                    ",
+                "de": " ███████████                             ████   ███             █████      ███████████    █████████ \n░░███░░░░░░█                            ░░███  ░░░             ░░███      ░░███░░░░░███  ███░░░░░███\n ░███   █ ░   ██████    ██████   ██████  ░███  ████  ████████   ░███ █████ ░███    ░███ ░███    ░░░ \n ░███████    ░░░░░███  ███░░███ ███░░███ ░███ ░░███ ░░███░░███  ░███░░███  ░██████████  ░░█████████ \n ░███░░░█     ███████ ░███ ░░░ ░███████  ░███  ░███  ░███ ░███  ░██████░   ░███░░░░░███  ░░░░░░░░███\n ░███  ░     ███░░███ ░███  ███░███░░░   ░███  ░███  ░███ ░███  ░███░░███  ░███    ░███  ███    ░███\n █████      ░░████████░░██████ ░░██████  █████ █████ ████ █████ ████ █████ █████   █████░░█████████ \n░░░░░        ░░░░░░░░  ░░░░░░   ░░░░░░  ░░░░░ ░░░░░ ░░░░ ░░░░░ ░░░░ ░░░░░ ░░░░░   ░░░░░  ░░░░░░░░░  \n                                                                                                    "
+            }
+        },
+        {
+            "id": "beginwarning",
+            "translations": {
+                "en": "Please have both iFacialMocap and VTube Studio open. Please also enable VTube Studio's API functionality, located in the settings. The port should be 8001- if it isn't, please set it to be so. If you cannot for whatever reasson, please refer to the user guide on how to change Facelink's port.\nNote: If iFacialMocap still will not connect, you may need to open a port in your firewall- please consult the user manual on how to do so.",
+                "jp": "VTubeStudioへの接続...",
+                "de": "Verbinden zu VTubeStudio..."
+            }
+        }
+
+    ]
+}
