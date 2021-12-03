@@ -161,7 +161,6 @@ async fn first_time_setup(sock:&mut tungstenite::WebSocket<tungstenite::stream::
         loop{
             let msg = sock.read_message().expect("Error reading message"); 
             if msg.to_text().unwrap() != ""{
-                println!("{}",msg);
                 break;
             }
         }
@@ -237,7 +236,6 @@ async fn get_auth(sock:&mut tungstenite::WebSocket<tungstenite::stream::MaybeTls
 
 pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::SharedConfig,lang:&str) {
     //binds to vts and forwards input from iFacialMocap
-    
     let (mut socket, _response) = connect(Url::parse(format!("ws://localhost:{}",&cnfg.get_port()).as_str()).unwrap()).expect("Can't connect"); //connect to vts localhost
     fllog::log_msg("vts_connect_success", lang, "white","black");
     
@@ -261,6 +259,12 @@ pub async fn vts_bind(rc:std::sync::mpsc::Receiver<String>,cnfg:&fsconfig::Share
             };
 
             let _ = socket.write_message(Message::Text(serde_json::to_string(&req).unwrap().as_str().into())); //send injection request
+            loop { //wait for response
+                let msg = socket.read_message().expect("Error reading message"); 
+                if msg.to_text().unwrap() != ""{
+                    break;
+                }
+            }
         }
 
     }else{

@@ -1,6 +1,6 @@
 {
-    "ip": "",
-    "port": "8081",
-    "lang": "",
-    "token": ""
+  "ip": "10.0.0.111",
+  "port": "8001",
+  "lang": "en",
+  "token": "6cff42a88b34830347bfe1e7e7b4981027f067aaf07681ba045f6dead7b8d2f9"
 }

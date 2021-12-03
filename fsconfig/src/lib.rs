@@ -51,6 +51,6 @@ impl SharedConfig {
     }
     pub fn get_port(&self) -> String{
         let lock = self.shared.lock().expect("error locking config"); //stops here
-        return lock.ip.clone();
+        return lock.port.clone();
     }
 }
