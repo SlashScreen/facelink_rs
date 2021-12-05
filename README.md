@@ -2,6 +2,7 @@
 A VtubeStudio plugin that allows iFacialMocap to stream data to the app, enabling full apple ARkit facial tracking to be used for 2D Vtuber models.
 
 # USE
+Download in the "releases" section
 A full setup and use guide is availible in English, German, and Japanese in the userresources folder.
 
 # BUILD
